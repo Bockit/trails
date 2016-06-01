@@ -1,0 +1,25 @@
+{
+  "name": "trails",
+  "version": "1.0.0",
+  "description": "Tsuro-like game",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/bockit/trails.git"
+  },
+  "keywords": [
+    "trails",
+    "board",
+    "game",
+    "tsuro"
+  ],
+  "author": "James Hiscock <james@jameshiscock.com> (http://jameshiscock.com/)",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/bockit/trails/issues"
+  },
+  "homepage": "https://github.com/bockit/trails#readme"
+}
