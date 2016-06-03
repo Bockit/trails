@@ -91,9 +91,9 @@ function serve (done) {
     staticServer.listen(HTTP_PORT, done)
 }
 
-function liveReload () {
+function liveReload (done) {
     util.log('livereload')
-    tinylr().listen(LR_PORT)
+    tinylr().listen(LR_PORT, done)
 }
 
 function triggerLivereload (type) {
