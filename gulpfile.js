@@ -116,14 +116,17 @@ function watch () {
 }
 
 function watchElm () {
+    util.log('watch elm')
     gulp.watch('src/elm/**/*', elm.bind(null, triggerReload))
 }
 
 function watchStylus () {
+    util.log('watch stylus')
     gulp.watch('src/stylus/**/*', stylus.bind(null, triggerCssReload))
 }
 
 function watchJade () {
+    util.log('watch jade')
     gulp.watch('src/index.jade', jade.bind(null, triggerReload))
 }
 
