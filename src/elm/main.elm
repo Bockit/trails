@@ -1,4 +1,5 @@
-import Html exposing (Html, button, div, text)
+import Html exposing (Html, ul, li, text)
+import Html.Attributes exposing (class)
 import Html.App as Html
 import Html.Events exposing (onClick)
 
@@ -16,8 +17,13 @@ update msg model =
       model - 1
 
 view model =
-  div []
-    [ button [ onClick Decrement ] [ text "-" ]
-    , div [] [ text (toString model) ]
-    , button [ onClick Increment ] [ text "+" ]
+  ul
+    [ class "hello-world" ]
+    [
+      token "Emma",
+      token "James"
     ]
+
+token : String -> Html msg
+token name =
+  li [ class "marker" ] [ text name ]
