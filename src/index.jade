@@ -1,0 +1,12 @@
+doctype html
+html
+    head
+        title Hello World
+        link(rel='stylesheet' href='/index.css')
+    body
+        h1 Hello world
+        main#elm-container
+        script(src='/bundle.js')
+        script.
+            var elmDiv = document.getElementById('elm-container');
+            var elmApp = Elm.Main.embed(elmDiv);
