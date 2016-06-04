@@ -2,7 +2,6 @@ import Html exposing (Html, h1, div, ul, li, text, input, button, label)
 import Html.Attributes exposing (class, value, id, for)
 import Html.App as Html
 import Html.Events exposing (onClick, onInput)
-import Debug exposing (log)
 
 main =
   Html.beginnerProgram { model = initialModel, view = view, update = update }
@@ -38,8 +37,24 @@ type alias TokenList = List Token
 type alias Model = {
   tokens: TokenList,
   selectedTokenId: Maybe TokenId,
-  gameState: GameState
+  gameState: GameState,
+  tile: Tile
 }
+
+--      A   B
+--   H         C
+--
+--   G         D
+--      F   E
+type Coordinate = A | B | C | D | E | F | G | H
+
+type alias Path = {
+  from: Coordinate,
+  to: Coordinate
+}
+
+type alias Tile = {
+  paths: List Path}
 
 tokens = [
   { id = 0, name = "Black", color = Black },
@@ -51,11 +66,24 @@ tokens = [
   { id = 6, name = "Green", color = Green },
   { id = 7, name = "Orange", color = Orange }]
 
+initialTile = {
+  paths = [
+    { from = A, to = C },
+    { from = B, to = D },
+    { from = C, to = A },
+    { from = D, to = B },
+    { from = E, to = G },
+    { from = F, to = H },
+    { from = G, to = E },
+    { from = H, to = F }
+  ]}
+
 initialModel: Model
 initialModel = {
   tokens = tokens,
   selectedTokenId = Nothing,
-  gameState = ChooseTokens}
+  gameState = ChooseTokens,
+  tile = initialTile}
 
 colorToCssClass: Color -> String
 colorToCssClass color =
@@ -137,7 +165,8 @@ chooseTokensPage model =
 playGamePage model =
   div []
   [
-    pageHeading "Play Game"
+    pageHeading "Play Game",
+    tile model.tile
   ]
 
 gameOverPage model =
@@ -170,3 +199,6 @@ tokenNameChanger token =
       input [ value token.name, onInput ChangeTokenName, id "namer" ] []
     Nothing ->
       div [] []
+
+tile data =
+  div [] [ text "I'm a tile"]
