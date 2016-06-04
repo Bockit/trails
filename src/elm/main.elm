@@ -1,4 +1,4 @@
-import Html exposing (Html, div, ul, li, text, input)
+import Html exposing (Html, h1, div, ul, li, text, input)
 import Html.Attributes exposing (class, value)
 import Html.App as Html
 import Html.Events exposing (onClick, onInput)
@@ -15,10 +15,10 @@ type Msg
 type Color
   = Black
   | Grey
-  | White
+  | Brown
   | Blue
   | Red
-  | Yellow
+  | Purple
   | Green
   | Orange
 
@@ -37,10 +37,10 @@ type alias Model = {
 tokens = [
   { id = 0, name = "Black", color = Black },
   { id = 1, name = "Grey", color = Grey },
-  { id = 2, name = "White", color = White },
+  { id = 2, name = "Brown", color = Brown },
   { id = 3, name = "Blue", color = Blue },
   { id = 4, name = "Red", color = Red },
-  { id = 5, name = "Yellow", color = Yellow },
+  { id = 5, name = "Purple", color = Purple },
   { id = 6, name = "Green", color = Green },
   { id = 7, name = "Orange", color = Orange }]
 
@@ -54,10 +54,10 @@ colorToCssClass color =
   case color of
     Black -> "black-token"
     Grey -> "grey-token"
-    White -> "white-token"
+    Brown -> "brown-token"
     Blue -> "blue-token"
     Red -> "red-token"
-    Yellow -> "yellow-token"
+    Purple -> "purple-token"
     Green -> "green-token"
     Orange -> "orange-token"
 
@@ -83,24 +83,32 @@ updateTokenNameMapper id newName token =
   else
     token
 
+isActiveToken token selectedToken =
+  case selectedToken of 
+    Just selected ->
+      if token.id == selected.id then "active" else ""
+    Nothing ->
+      ""
+
 view: Model -> Html Msg
 view model =
   div []
   [
-    tokenList model.tokens,
+    h1 [ class "page-heading"] [ text "this is a heading" ],
+    tokenList model,
     tokenNameChanger model.selectedToken
   ]
 
-tokenList: TokenList -> Html Msg
-tokenList names =
-  ul []
-    (List.map token names)
+tokenList: Model -> Html Msg
+tokenList model =
+  ul [class "token-list"]
+    (List.map (token model.selectedToken) model.tokens)
 
-token: Token -> Html Msg
-token token =
+token: Maybe Token -> Token -> Html Msg
+token selectedToken token =
   li
     [
-      class (colorToCssClass token.color),
+      class ((colorToCssClass token.color) ++ " token " ++ (isActiveToken token selectedToken)),
       onClick (SelectToken token)
     ] [ text token.name ]
 
