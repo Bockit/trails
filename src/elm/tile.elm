@@ -7,7 +7,7 @@ module Tile exposing (..)
 --      F   E
 type Coordinate = A | B | C | D | E | F | G | H
 
-type Path = (Coordinate, Coordinate)
+--type Path = (Coordinate, Coordinate)
 
-type alias Tile = List Path
+--type alias Tile = List Path
 

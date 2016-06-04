@@ -1,3 +1,3 @@
 module Board exposing (..)
 
--- hello
+type Foo = Bar
