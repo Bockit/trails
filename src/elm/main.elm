@@ -1,5 +1,5 @@
-import Html exposing (Html, h1, div, ul, li, text, input, button)
-import Html.Attributes exposing (class, value)
+import Html exposing (Html, h1, div, ul, li, text, input, button, label)
+import Html.Attributes exposing (class, value, id, for)
 import Html.App as Html
 import Html.Events exposing (onClick, onInput)
 import Debug exposing (log)
@@ -151,21 +151,22 @@ pageHeading title =
 
 tokenList: Model -> Html Msg
 tokenList model =
-  ul [ class "token-list" ]
+  div [ class "token-list" ]
     (List.map ( token model.selectedTokenId ) model.tokens)
 
 token: Maybe TokenId -> Token -> Html Msg
 token selectedTokenId token =
-  li
+  label
     [
       class ((colorToCssClass token.color) ++ " token " ++ (isActiveToken token selectedTokenId)),
-      onClick (SelectToken token.id)
+      onClick (SelectToken token.id),
+      for "namer"
     ] [ text token.name ]
 
 tokenNameChanger: Maybe Token -> Html Msg
 tokenNameChanger token =
   case token of
     Just token ->
-      input [ value token.name, onInput ChangeTokenName ] []
+      input [ value token.name, onInput ChangeTokenName, id "namer" ] []
     Nothing ->
       div [] []
