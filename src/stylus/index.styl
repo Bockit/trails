@@ -1,3 +1,4 @@
+@require './tile'
 
 body
 	font-family Helvetica, Arial
@@ -11,7 +12,7 @@ token-color(color)
 
 
 // TOKENS
-.token-list 
+.token-list
 	list-style none
 	padding 0px
 	text-align: center;
@@ -20,7 +21,7 @@ token-color(color)
 	display inline-block
 	padding 0 20px
 	text-align center
-	&:before 
+	&:before
 		content ""
 		border-radius 40px
 		margin 40px auto
@@ -52,7 +53,7 @@ token-color(color)
 .orange-token
 	token-color(orange)
 
-.active 
+.active
 	font-size 22px
 	padding 0 10px
 	&:before
@@ -78,4 +79,3 @@ input
 	font-size 30px
 	text-align center
 }
-	

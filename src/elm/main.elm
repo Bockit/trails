@@ -1,7 +1,8 @@
-import Html exposing (Html, h1, div, ul, li, text, input, button, label)
+import Html exposing (Html, h1, div, ul, li, text, input, button, label, span)
 import Html.Attributes exposing (class, value, id, for)
 import Html.App as Html
 import Html.Events exposing (onClick, onInput)
+import Debug exposing (log)
 
 main =
   Html.beginnerProgram { model = initialModel, view = view, update = update }
@@ -11,6 +12,7 @@ type Msg
   | SelectToken TokenId
   | ChangeTokenName String
   | StartGame
+  | ClickCoordinate Coordinate
 
 type GameState = ChooseTokens | PlayGame | GameOver
 
@@ -38,7 +40,8 @@ type alias Model = {
   tokens: TokenList,
   selectedTokenId: Maybe TokenId,
   gameState: GameState,
-  tile: Tile
+  tile: Tile,
+  selectedCoordinate: Coordinate
 }
 
 --      A   B
@@ -83,7 +86,8 @@ initialModel = {
   tokens = tokens,
   selectedTokenId = Nothing,
   gameState = ChooseTokens,
-  tile = initialTile}
+  tile = initialTile,
+  selectedCoordinate = A}
 
 colorToCssClass: Color -> String
 colorToCssClass color =
@@ -110,6 +114,8 @@ update msg model =
           model
     StartGame ->
       { model | gameState = PlayGame }
+    ClickCoordinate coordinate ->
+      log "model" { model | selectedCoordinate = coordinate }
     _ ->
       model
 
@@ -200,5 +206,21 @@ tokenNameChanger token =
     Nothing ->
       div [] []
 
+--findExit: Tile -> Coordinate -> Coordinate
+--findExit tile entryPoint =
+--  (Array.fromList(tile)).to
+
 tile data =
-  div [] [ text "I'm a tile"]
+  div [ class "tile" ] [
+    span [] [ text "I'm a tile" ],
+    ul [] [
+      li [ class "coordinate-a", onClick ( ClickCoordinate A ) ] [ text "A" ],
+      li [ class "coordinate-b", onClick ( ClickCoordinate B ) ] [ text "B" ],
+      li [ class "coordinate-c", onClick ( ClickCoordinate C ) ] [ text "C" ],
+      li [ class "coordinate-d", onClick ( ClickCoordinate D ) ] [ text "D" ],
+      li [ class "coordinate-e", onClick ( ClickCoordinate E ) ] [ text "E" ],
+      li [ class "coordinate-f", onClick ( ClickCoordinate F ) ] [ text "F" ],
+      li [ class "coordinate-g", onClick ( ClickCoordinate G ) ] [ text "G" ],
+      li [ class "coordinate-h", onClick ( ClickCoordinate H ) ] [ text "H" ]
+    ]
+  ]
