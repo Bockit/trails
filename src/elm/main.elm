@@ -1,4 +1,4 @@
-import Html exposing (Html, h1, div, ul, li, text, input)
+import Html exposing (Html, h1, div, ul, li, text, input, button)
 import Html.Attributes exposing (class, value)
 import Html.App as Html
 import Html.Events exposing (onClick, onInput)
@@ -11,6 +11,9 @@ type Msg
   = NoOp
   | SelectToken TokenId
   | ChangeTokenName String
+  | StartGame
+
+type GameState = ChooseTokens | PlayGame | GameOver
 
 type Color
   = Black
@@ -34,7 +37,8 @@ type alias TokenList = List Token
 
 type alias Model = {
   tokens: TokenList,
-  selectedTokenId: Maybe TokenId
+  selectedTokenId: Maybe TokenId,
+  gameState: GameState
 }
 
 tokens = [
@@ -50,7 +54,8 @@ tokens = [
 initialModel: Model
 initialModel = {
   tokens = tokens,
-  selectedTokenId = Nothing}
+  selectedTokenId = Nothing,
+  gameState = ChooseTokens}
 
 colorToCssClass: Color -> String
 colorToCssClass color =
@@ -75,6 +80,8 @@ update msg model =
           updateTokenName model selectedTokenId newName
         Nothing ->
           model
+    StartGame ->
+      { model | gameState = PlayGame }
     _ ->
       model
 
@@ -110,12 +117,37 @@ selectedTokenName model =
 
 view: Model -> Html Msg
 view model =
+  case model.gameState of
+    ChooseTokens ->
+      chooseTokensPage model
+    PlayGame ->
+      playGamePage model
+    GameOver ->
+      gameOverPage model
+
+chooseTokensPage model =
   div []
   [
-    h1 [ class "page-heading"] [ text "this is a heading" ],
+    pageHeading "Name your tokens",
     tokenList model,
-    tokenNameChanger (selectedTokenName model)
+    tokenNameChanger (selectedTokenName model),
+    button [ class "navigate", onClick StartGame ] [ text "Start the game" ]
   ]
+
+playGamePage model =
+  div []
+  [
+    pageHeading "Play Game"
+  ]
+
+gameOverPage model =
+  div []
+  [
+    pageHeading "GameOver"
+  ]
+
+pageHeading title =
+  h1 [ class "page-heading" ] [ text title ]
 
 tokenList: Model -> Html Msg
 tokenList model =
