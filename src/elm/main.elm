@@ -9,13 +9,13 @@ main =
 
 type Msg
   = NoOp
-  | SelectToken Token
+  | SelectToken TokenId
   | ChangeTokenName String
 
 type Color
   = Black
   | Grey
-  | White
+  | Brown
   | Blue
   | Red
   | Yellow
@@ -25,19 +25,22 @@ type Color
 type alias Token = {
   name : String,
   color : Color,
-  id : Int
+  id : TokenId
 }
 
+type alias TokenId = Int
+
 type alias TokenList = List Token
+
 type alias Model = {
   tokens: TokenList,
-  selectedToken: Maybe Token
+  selectedTokenId: Maybe TokenId
 }
 
 tokens = [
   { id = 0, name = "Black", color = Black },
   { id = 1, name = "Grey", color = Grey },
-  { id = 2, name = "White", color = White },
+  { id = 2, name = "Brown", color = Brown },
   { id = 3, name = "Blue", color = Blue },
   { id = 4, name = "Red", color = Red },
   { id = 5, name = "Yellow", color = Yellow },
@@ -47,14 +50,14 @@ tokens = [
 initialModel: Model
 initialModel = {
   tokens = tokens,
-  selectedToken = Nothing}
+  selectedTokenId = Nothing}
 
 colorToCssClass: Color -> String
 colorToCssClass color =
   case color of
     Black -> "black-token"
     Grey -> "grey-token"
-    White -> "white-token"
+    Brown -> "brown-token"
     Blue -> "blue-token"
     Red -> "red-token"
     Yellow -> "yellow-token"
@@ -64,44 +67,67 @@ colorToCssClass color =
 update: Msg -> Model -> Model
 update msg model =
   case msg of
-    SelectToken token ->
-      { model | selectedToken = Just token }
+    SelectToken tokenId ->
+      { model | selectedTokenId = Just tokenId }
     ChangeTokenName newName ->
-      case model.selectedToken of
-        Just selectedToken ->
-          updateTokenName { model | selectedToken = Just { selectedToken | name = newName } } selectedToken.id newName
-        Nothing -> model
+      case model.selectedTokenId of
+        Just selectedTokenId ->
+          updateTokenName model selectedTokenId newName
+        Nothing ->
+          model
     _ ->
       model
 
+updateTokenName: Model -> TokenId -> String -> Model
 updateTokenName model id name =
   { model | tokens = List.map (updateTokenNameMapper id name) model.tokens }
 
+updateTokenNameMapper: TokenId -> String -> Token -> Token
 updateTokenNameMapper id newName token =
   if token.id == id then
     { token | name = newName }
   else
     token
 
+
+isActiveToken: Token -> Maybe TokenId -> String
+isActiveToken token activeTokenId =
+  case activeTokenId of
+    Just id ->
+      if token.id == id then "active" else ""
+    Nothing ->
+      ""
+
+findToken tokens tokenId =
+  List.filter (compareTokenToId tokenId) tokens |> List.head
+
+compareTokenToId id token =
+  token.id == id
+
+selectedTokenName model =
+  case model.selectedTokenId of
+    Just tokenId -> findToken model.tokens tokenId
+    Nothing -> Nothing
+
 view: Model -> Html Msg
 view model =
   div []
   [
-    tokenList model.tokens,
-    tokenNameChanger model.selectedToken
+    tokenList model,
+    tokenNameChanger (selectedTokenName model)
   ]
 
-tokenList: TokenList -> Html Msg
-tokenList names =
-  ul []
-    (List.map token names)
+tokenList: Model -> Html Msg
+tokenList model =
+  ul [ class "token-list" ]
+    (List.map ( token model.selectedTokenId ) model.tokens)
 
-token: Token -> Html Msg
-token token =
+token: Maybe TokenId -> Token -> Html Msg
+token selectedTokenId token =
   li
     [
-      class (colorToCssClass token.color),
-      onClick (SelectToken token)
+      class ((colorToCssClass token.color) ++ " " ++ (isActiveToken token selectedTokenId)),
+      onClick (SelectToken token.id)
     ] [ text token.name ]
 
 tokenNameChanger: Maybe Token -> Html Msg
