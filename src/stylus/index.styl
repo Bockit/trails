@@ -1,23 +1,77 @@
+
+body
+	font-family Helvetica, Arial
+// START MIXINS
+token-color(color)
+	color color
+	&:before
+		border 1px solid color
+// END MIXINS
+
+
+
+// TOKENS
+.token-list 
+	list-style none
+	margin 100px auto
+	padding 0px
+	text-align: center;
+	li
+		display inline-block
+		padding 0 20px
+.token
+	text-align center
+	&:before 
+		content ""
+		border-radius 40px
+		width 60px
+		height 80px
+		display block
+
 .black-token
-    color black
+	token-color(black)
 
 .grey-token
-    color grey
+	token-color(grey)
 
-.white-token
-    color salmon
+.brown-token
+	token-color(brown)
 
 .blue-token
-    color blue
+	token-color(blue)
 
 .red-token
-    color red
+	token-color(red)
 
-.yellow-token
-    color yellow
+.purple-token
+	token-color(purple)
 
 .green-token
-    color green
+	token-color(green)
 
 .orange-token
-    color orange
+	token-color(orange)
+
+.active 
+	font-size 22px
+	&:before
+		width 80px
+		height 100px
+
+
+// INPUT
+input
+	border 1px solid grey
+	border-radius 3px
+	padding 10px
+	margin 0 auto
+	display block
+	font-size 20px
+	text-align center
+
+// HEADINGS
+.page-heading {
+	font-size 30px
+	text-align center
+}
+	

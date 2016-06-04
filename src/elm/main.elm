@@ -1,4 +1,4 @@
-import Html exposing (Html, div, ul, li, text, input)
+import Html exposing (Html, h1, div, ul, li, text, input)
 import Html.Attributes exposing (class, value)
 import Html.App as Html
 import Html.Events exposing (onClick, onInput)
@@ -18,7 +18,7 @@ type Color
   | Brown
   | Blue
   | Red
-  | Yellow
+  | Purple
   | Green
   | Orange
 
@@ -43,7 +43,7 @@ tokens = [
   { id = 2, name = "Brown", color = Brown },
   { id = 3, name = "Blue", color = Blue },
   { id = 4, name = "Red", color = Red },
-  { id = 5, name = "Yellow", color = Yellow },
+  { id = 5, name = "Purple", color = Purple },
   { id = 6, name = "Green", color = Green },
   { id = 7, name = "Orange", color = Orange }]
 
@@ -60,7 +60,7 @@ colorToCssClass color =
     Brown -> "brown-token"
     Blue -> "blue-token"
     Red -> "red-token"
-    Yellow -> "yellow-token"
+    Purple -> "purple-token"
     Green -> "green-token"
     Orange -> "orange-token"
 
@@ -89,7 +89,6 @@ updateTokenNameMapper id newName token =
   else
     token
 
-
 isActiveToken: Token -> Maybe TokenId -> String
 isActiveToken token activeTokenId =
   case activeTokenId of
@@ -113,6 +112,7 @@ view: Model -> Html Msg
 view model =
   div []
   [
+    h1 [ class "page-heading"] [ text "this is a heading" ],
     tokenList model,
     tokenNameChanger (selectedTokenName model)
   ]
@@ -126,7 +126,7 @@ token: Maybe TokenId -> Token -> Html Msg
 token selectedTokenId token =
   li
     [
-      class ((colorToCssClass token.color) ++ " " ++ (isActiveToken token selectedTokenId)),
+      class ((colorToCssClass token.color) ++ " token " ++ (isActiveToken token selectedTokenId)),
       onClick (SelectToken token.id)
     ] [ text token.name ]
 
