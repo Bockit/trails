@@ -13,17 +13,17 @@ token-color(color)
 // TOKENS
 .token-list 
 	list-style none
-	margin 100px auto
 	padding 0px
 	text-align: center;
-	li
-		display inline-block
-		padding 0 20px
+
 .token
+	display inline-block
+	padding 0 20px
 	text-align center
 	&:before 
 		content ""
 		border-radius 40px
+		margin 40px auto
 		width 60px
 		height 80px
 		display block
@@ -54,9 +54,13 @@ token-color(color)
 
 .active 
 	font-size 22px
+	padding 0 10px
 	&:before
+		margin 15px auto
 		width 80px
 		height 100px
+		position relative
+		top -10px
 
 
 // INPUT
@@ -64,7 +68,7 @@ input
 	border 1px solid grey
 	border-radius 3px
 	padding 10px
-	margin 0 auto
+	margin 40px auto 0
 	display block
 	font-size 20px
 	text-align center
