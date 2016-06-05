@@ -1,7 +1,10 @@
 import Html exposing (Html, h1, div, text, input, button, label, span, ol, ul, li)
+import Svg exposing (svg, path)
+import Svg.Attributes exposing (d, width, height)
 import Html.Attributes exposing (class, value, id, for)
 import Html.App as Html
 import Html.Events exposing (onClick, onInput)
+import String
 import Debug exposing (log)
 
 main =
@@ -54,7 +57,7 @@ type alias Path = (PathPoint, PathPoint)
 
 type alias Tile = {
   points: List PathPoint,
-  connections: List Path
+  connections: Maybe (List Path)
 }
 
 type alias Board = {
@@ -66,7 +69,7 @@ type alias PlayerCoordinate = {
   tileCoordinate: PathPoint
 }
 
-board = { tiles = List.map makeTile [0..0] }
+board = { tiles = List.map makeTile [0..35] }
 
 makeTile _ =
   {
@@ -76,7 +79,7 @@ makeTile _ =
       (2, 0), (2, 1),
       (3, 0), (3, 1)
     ],
-    connections = [
+    connections = Just [
       ((0, 0), (1, 1)),
       ((1, 0), (2, 1)),
       ((2, 0), (3, 1)),
@@ -88,15 +91,19 @@ startingCoordinate = {
   tile = 0,
   tileCoordinate = (0, 0)}
 
+player2StartingCoordinate = {
+  tile = 0,
+  tileCoordinate = (2, 1)}
+
 tokens = [
-  { id = 0, name = "Black", color = Black, position = Just startingCoordinate },
+  { id = 0, name = "Black", color = Black, position = Nothing },
   { id = 1, name = "Grey", color = Grey, position = Nothing },
   { id = 2, name = "Brown", color = Brown, position = Nothing },
   { id = 3, name = "Blue", color = Blue, position = Nothing },
   { id = 4, name = "Red", color = Red, position = Nothing },
   { id = 5, name = "Purple", color = Purple, position = Nothing },
-  { id = 6, name = "Green", color = Green, position = Nothing },
-  { id = 7, name = "Orange", color = Orange, position = Nothing }]
+  { id = 6, name = "Green", color = Green, position = Just startingCoordinate },
+  { id = 7, name = "Orange", color = Orange, position = Just player2StartingCoordinate }]
 
 initialModel: Model
 initialModel = {
@@ -238,7 +245,7 @@ filterTokensForTile tokens tileIndex =
 tileView: TokenList -> Int -> Tile -> Html Msg
 tileView tokens index tile =
   div [ class "tile" ] [
-    span [ class "tile-index" ] [ text (toString index) ],
+    tilePaths tile.connections,
     ol [ class "points" ] (List.map tilePointView tile.points),
     tileTokens tokens
   ]
@@ -263,3 +270,34 @@ tileToken token =
       li [ class ((colorToCssClass token.color) ++ " tile-token " ++ (pathPointToString position.tileCoordinate)) ] []
     Nothing ->
       li [] []
+
+tilePaths: Maybe (List Path) -> Html Msg
+tilePaths connections =
+  case connections of
+    Just connections ->
+      svg [ width "200px", height "200px" ]
+        (List.map connectionView connections)
+    Nothing ->
+      svg [] []
+
+connectionView: Path -> Html Msg
+connectionView (connection) =
+  path [ d (connectionPathString connection) ] []
+
+connectionPathString: Path -> String
+connectionPathString (from, to) =
+  "M" ++ (connectionPathStringCoord from) ++
+    "L" ++ (connectionPathStringCoord to)
+
+connectionPathStringCoord: (Int, Int) -> String
+connectionPathStringCoord point =
+  case point of
+    (0, 0) -> "66.666,0"
+    (0, 1) -> "133.333,0"
+    (1, 0) -> "200,66.666"
+    (1, 1) -> "200,133.333"
+    (2, 0) -> "66.666,200"
+    (2, 1) -> "133.333,200"
+    (3, 0) -> "0,66.666"
+    (3, 1) -> "0,133.333"
+    _ -> ""

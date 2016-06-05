@@ -14,6 +14,10 @@ tile-height = tile-width
 	position relative
 	background #DDD
 
+	path
+		stroke #333
+		stroke-width 3px
+
 .tile-index
 	position absolute;
 	top 0
@@ -31,7 +35,7 @@ tile-height = tile-width
 	height 10px
 	overflow hidden
 	text-indent -9999px
-	background #ccc
+	background #eee
 	border-radius 5px
 
 	&.point-
@@ -66,6 +70,8 @@ tile-height = tile-width
 	width 30px
 	height 40px
 	border-radius 20px
+	transition 0.2s
+	z-index 2
 
 	&.point-
 		&0-0
@@ -96,10 +102,10 @@ tile-height = tile-width
 
 
 	&.black-token
-		background black
+		background #333
 
 	&.grey-token
-		background #9b9b9b
+		background #888
 
 	&.brown-token
 		background #836d4a
