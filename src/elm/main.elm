@@ -3,7 +3,7 @@ import Svg exposing (svg, path)
 import Svg.Attributes exposing (d, width, height)
 import Html.Attributes exposing (class, value, id, for)
 import Html.App as Html
-import Html.Events exposing (onClick, onInput)
+import Html.Events exposing (onClick, onInput, onDoubleClick)
 import String
 import Debug exposing (log)
 
@@ -16,6 +16,7 @@ type Msg
   | ChangeTokenName String
   | StartGame
   | SelectStartingPoint PlayerCoordinate
+  | PlaceTile Int
 
 type GameState = ChooseTokens | ChoosePositions | PlayGame | GameOver
 
@@ -82,13 +83,15 @@ makeTile _ =
       (3, 0), (3, 1)
     ],
     connections = Nothing
-    --connections = Just [
-    --  ((0, 0), (1, 1)),
-    --  ((1, 0), (2, 1)),
-    --  ((2, 0), (3, 1)),
-    --  ((3, 0), (0, 1))
-    --]
   }
+
+makeTileConnections =
+  Just [
+    ((0, 0), (1, 1)),
+    ((1, 0), (2, 1)),
+    ((2, 0), (3, 1)),
+    ((3, 0), (0, 1))
+  ]
 
 tokens = [
   { id = 0, name = "Black", color = Black, position = Nothing, placed = False },
@@ -137,8 +140,26 @@ update msg model =
       { model |
         tokens = setFirstUnsetTokenPosition model.tokens position,
         gameState = keepSelectingOrPlayGame model.tokens}
+    PlaceTile index ->
+      if model.gameState == PlayGame then
+        placeTile model makeTileConnections index
+      else
+        model
     _ ->
       model
+
+placeTile model connections tileIndex =
+  { model |
+    board = placeTileOnBoard connections board tileIndex }
+
+placeTileOnBoard connections board tileIndex =
+  { board | tiles = List.indexedMap (addConnectionsToTile tileIndex connections) board.tiles }
+
+addConnectionsToTile setIndex connections tileIndex tile =
+  if setIndex == tileIndex then
+    { tile | connections = connections }
+  else
+    tile
 
 keepSelectingOrPlayGame tokens =
   if (countUnplaced tokens) == 1 then
@@ -237,7 +258,11 @@ playGamePage model =
   div []
   [
     pageHeading "Play Game",
-    boardView model.board model.tokens False
+    div [ class "board-wrapper" ]
+    [
+      tokenOrder model.tokens,
+      boardView model.board model.tokens False
+    ]
   ]
 
 gameOverPage model =
@@ -288,10 +313,14 @@ filterTokensForTile tokens tileIndex =
 
 tileView: TokenList -> Int -> Tile -> Bool -> Html Msg
 tileView tokens index tile showMarkers=
-  div [ class "tile" ] [
+  div [
+    class "tile",
+    onDoubleClick (PlaceTile index)
+  ] [
     tilePaths tile.connections,
     (if showMarkers then
-      ol [ class "points" ] (List.map (tilePointView index) tile.points)
+      ol [ class "points" ]
+        (List.map (tilePointView index) tile.points)
     else
       div [] []),
     tileTokens tokens
