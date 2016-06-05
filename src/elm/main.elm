@@ -40,12 +40,17 @@ type alias Model = {
   board: Board
 }
 
---      A   B
---   H         C
+--          (0,0) (0,1)
 --
---   G         D
---      F   E
-type PathPoint = A | B | C | D | E | F | G | H
+--
+--   (3,0)               (1,0)
+--
+--
+--   (3,1)               (1,1)
+--
+--
+--          (2,0) (2,1)
+type PathPoint = Int Int
 
 type alias Path = {
   from: PathPoint,
@@ -85,7 +90,7 @@ makePlayerPositions =
 filterDuplicatePositions list = list
 
 comparePositions a b =
-  if List.contains [ A, B ] a.pathPoint
+  if List.contains [ A, B ] a.pathPoint then
 
 makePlayerPositionsFromTile index =
   List.map (\coordinate -> { x = index % 6, y = index // 6, pathPoint = coordinate }) [ A, B, C, D, E, F, G, H ]
