@@ -221,8 +221,8 @@ tokenNameChanger token =
 boardView: Board -> Html Msg
 boardView board =
   div [ class "board" ]
-    (List.map tileView board.tiles)
+    (List.indexedMap tileView board.tiles)
 
-tileView: Tile -> Html Msg
-tileView tile =
-  div [ class "tile" ] [ text "I'm a tile" ]
+tileView: Int -> Tile -> Html Msg
+tileView index tile =
+  div [ class "tile" ] [ text (toString index) ]
