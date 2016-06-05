@@ -1,15 +1,22 @@
 @require './tile'
 
-body
-	font-family Helvetica, Arial
 // START MIXINS
 token-color(color)
 	color color
 	&:before
 		border 1px solid color
+		background color
 // END MIXINS
 
+// BUTTONS
+body
+	font-family Helvetica, Arial
+	background #eee
 
+// HEADINGS
+.page-heading
+	font-size 30px
+	text-align center
 
 // TOKENS
 .token-list
@@ -33,22 +40,22 @@ token-color(color)
 	token-color(black)
 
 .grey-token
-	token-color(grey)
+	token-color(#9b9b9b)
 
 .brown-token
-	token-color(brown)
+	token-color(#836d4a)
 
 .blue-token
-	token-color(blue)
+	token-color(#38adff)
 
 .red-token
-	token-color(red)
+	token-color(#ff3d38)
 
 .purple-token
-	token-color(purple)
+	token-color(#a483e1)
 
 .green-token
-	token-color(green)
+	token-color(#89e183)
 
 .orange-token
 	token-color(orange)
@@ -64,7 +71,7 @@ token-color(color)
 		top -10px
 
 
-// INPUT
+// INTERACTIVES
 input
 	border 1px solid grey
 	border-radius 3px
@@ -74,8 +81,11 @@ input
 	font-size 20px
 	text-align center
 
-// HEADINGS
-.page-heading {
-	font-size 30px
-	text-align center
-}
+.navigate
+	background #ccc
+	border-radius 5px
+	color #333
+	display block
+	font-size: 20px
+	margin 40px auto 0
+	padding 20px
