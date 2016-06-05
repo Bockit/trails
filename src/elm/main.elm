@@ -15,8 +15,9 @@ type Msg
   | SelectToken Int
   | ChangeTokenName String
   | StartGame
+  | SelectStartingPoint PlayerCoordinate
 
-type GameState = ChooseTokens | PlayGame | GameOver
+type GameState = ChooseTokens | ChoosePositions | PlayGame | GameOver
 
 type Color
   = Black
@@ -32,6 +33,7 @@ type alias Token = {
   name : String,
   color : Color,
   id : Int,
+  placed : Bool,
   position: Maybe PlayerCoordinate
 }
 
@@ -79,37 +81,31 @@ makeTile _ =
       (2, 0), (2, 1),
       (3, 0), (3, 1)
     ],
-    connections = Just [
-      ((0, 0), (1, 1)),
-      ((1, 0), (2, 1)),
-      ((2, 0), (3, 1)),
-      ((3, 0), (0, 1))
-    ]
+    connections = Nothing
+    --connections = Just [
+    --  ((0, 0), (1, 1)),
+    --  ((1, 0), (2, 1)),
+    --  ((2, 0), (3, 1)),
+    --  ((3, 0), (0, 1))
+    --]
   }
 
-startingCoordinate = {
-  tile = 0,
-  tileCoordinate = (0, 0)}
-
-player2StartingCoordinate = {
-  tile = 0,
-  tileCoordinate = (2, 1)}
-
 tokens = [
-  { id = 0, name = "Black", color = Black, position = Nothing },
-  { id = 1, name = "Grey", color = Grey, position = Nothing },
-  { id = 2, name = "Brown", color = Brown, position = Nothing },
-  { id = 3, name = "Blue", color = Blue, position = Nothing },
-  { id = 4, name = "Red", color = Red, position = Nothing },
-  { id = 5, name = "Purple", color = Purple, position = Nothing },
-  { id = 6, name = "Green", color = Green, position = Just startingCoordinate },
-  { id = 7, name = "Orange", color = Orange, position = Just player2StartingCoordinate }]
+  { id = 0, name = "Black", color = Black, position = Nothing, placed = False },
+  { id = 1, name = "Grey", color = Grey, position = Nothing, placed = False },
+  { id = 2, name = "Brown", color = Brown, position = Nothing, placed = False },
+  { id = 3, name = "Blue", color = Blue, position = Nothing, placed = False },
+  { id = 4, name = "Red", color = Red, position = Nothing, placed = False },
+  { id = 5, name = "Purple", color = Purple, position = Nothing, placed = False },
+  { id = 6, name = "Green", color = Green, position = Nothing, placed = False },
+  { id = 7, name = "Orange", color = Orange, position = Nothing, placed = False }]
 
 initialModel: Model
 initialModel = {
   tokens = tokens,
+
   selectedTokenId = Nothing,
-  gameState = PlayGame,
+  gameState = ChoosePositions,
   board = board}
 
 colorToCssClass: Color -> String
@@ -137,8 +133,43 @@ update msg model =
           model
     StartGame ->
       { model | gameState = PlayGame }
+    SelectStartingPoint position ->
+      { model |
+        tokens = setFirstUnsetTokenPosition model.tokens position,
+        gameState = keepSelectingOrPlayGame model.tokens}
     _ ->
       model
+
+keepSelectingOrPlayGame tokens =
+  if (countUnplaced tokens) == 1 then
+    PlayGame
+  else
+    ChoosePositions
+
+countUnplaced tokens =
+  List.length (List.filter (\token -> token.placed == False) tokens)
+
+setFirstUnsetTokenPosition: TokenList -> PlayerCoordinate -> TokenList
+setFirstUnsetTokenPosition tokens position =
+  List.concat([ filterPlaced tokens, placeFirst position (filterUnplaced tokens)])
+
+placeFirst: PlayerCoordinate -> TokenList -> TokenList
+placeFirst position tokens =
+  List.indexedMap (\index token ->
+    if index == 0 then
+      { token | position = Just position, placed = True }
+    else
+      token) tokens
+
+filterUnplaced: TokenList -> TokenList
+filterUnplaced = filterPlacedState False
+
+filterPlaced: TokenList -> TokenList
+filterPlaced = filterPlacedState True
+
+filterPlacedState: Bool -> TokenList -> TokenList
+filterPlacedState state tokens =
+  List.filter (\token -> token.placed == state) tokens
 
 updateTokenName: Model -> Int -> String -> Model
 updateTokenName model id name =
@@ -175,6 +206,8 @@ view model =
   case model.gameState of
     ChooseTokens ->
       chooseTokensPage model
+    ChoosePositions ->
+      choosePositionsPage model
     PlayGame ->
       playGamePage model
     GameOver ->
@@ -189,11 +222,22 @@ chooseTokensPage model =
     button [ class "navigate", onClick StartGame ] [ text "Start the game" ]
   ]
 
+choosePositionsPage model =
+  div []
+  [
+    pageHeading "Place your tokens",
+    div [ class "board-wrapper" ]
+    [
+      tokenOrder (List.filter (\token -> token.placed == False) model.tokens),
+      boardView model.board model.tokens True
+    ]
+  ]
+
 playGamePage model =
   div []
   [
     pageHeading "Play Game",
-    boardView model.board model.tokens
+    boardView model.board model.tokens False
   ]
 
 gameOverPage model =
@@ -227,13 +271,13 @@ tokenNameChanger token =
     Nothing ->
       div [] []
 
-boardView: Board -> TokenList -> Html Msg
-boardView board tokens =
+boardView: Board -> TokenList -> Bool -> Html Msg
+boardView board tokens showMarkers =
   div [ class "board" ]
-    (List.indexedMap (tileViewHelper tokens) board.tiles)
+    (List.indexedMap (tileViewHelper tokens showMarkers) board.tiles)
 
-tileViewHelper tokens index tile =
-  tileView (filterTokensForTile tokens index) index tile
+tileViewHelper tokens showMarkers index tile =
+  tileView (filterTokensForTile tokens index) index tile showMarkers
 
 filterTokensForTile tokens tileIndex =
   List.filter (\token ->
@@ -242,17 +286,35 @@ filterTokensForTile tokens tileIndex =
       Nothing -> False
     ) tokens
 
-tileView: TokenList -> Int -> Tile -> Html Msg
-tileView tokens index tile =
+tileView: TokenList -> Int -> Tile -> Bool -> Html Msg
+tileView tokens index tile showMarkers=
   div [ class "tile" ] [
     tilePaths tile.connections,
-    ol [ class "points" ] (List.map tilePointView tile.points),
+    (if showMarkers then
+      ol [ class "points" ] (List.map (tilePointView index) tile.points)
+    else
+      div [] []),
     tileTokens tokens
   ]
 
-tilePointView: PathPoint -> Html Msg
-tilePointView pathPoint =
-  li [ class (pathPointToString pathPoint) ] [ text (pathPointToString pathPoint) ]
+tilePointView: Int -> PathPoint -> Html Msg
+tilePointView tileIndex (side, index) =
+  if isBoardEdgePoint tileIndex side then
+    li [
+      class ((pathPointToString (side, index)) ++ " point"),
+      onClick (SelectStartingPoint { tile = tileIndex, tileCoordinate = (side, index)})
+    ] [
+      text (pathPointToString (side, index))
+    ]
+  else
+    li [] []
+
+isBoardEdgePoint: Int -> Int -> Bool
+isBoardEdgePoint tileIndex side =
+  (tileIndex < 6 && side == 0)
+  || (tileIndex % 6 == 0 && side == 3)
+  || (tileIndex % 6 == 5 && side == 1)
+  || (tileIndex // 6 == 5 && side == 2)
 
 pathPointToString: PathPoint -> String
 pathPointToString (side, index) =
@@ -301,3 +363,10 @@ connectionPathStringCoord point =
     (3, 0) -> "0,66.666"
     (3, 1) -> "0,133.333"
     _ -> ""
+
+tokenOrder tokens =
+  ul [ class "token-order" ]
+    (List.map orderToken tokens)
+
+orderToken token =
+  li [ class ((colorToCssClass token.color) ++ " order-token") ] []
