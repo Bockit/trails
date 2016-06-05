@@ -11,7 +11,51 @@ tile-height = tile-width
 .tile
 	width tile-width
 	height tile-height
+	position relative
+	background #DDD
+
+.tile-index
+	position absolute;
+	top 0
+	bottom 0
+	right 0
+	left 0
 	font-size 60px
 	line-height 200px
 	text-align center
-	background #EEEEEE
+
+.points li
+	display block
+	position absolute
+	width 10px
+	height 10px
+	overflow hidden
+	text-indent -9999px
+	background #ccc
+	border-radius 5px
+
+	&.point-
+		&0-0
+			top -5px
+			left calc(33.33333% - 5px)
+		&0-1
+			top -5px
+			left calc(66.66666% - 5px)
+		&1-0
+			right -5px
+			top calc(33.33333% - 5px)
+		&1-1
+			right -5px
+			top calc(66.66666% - 5px)
+		&2-0
+			bottom -5px
+			left calc(33.33333% - 5px)
+		&2-1
+			bottom -5px
+			left calc(66.66666% - 5px)
+		&3-0
+			left -5px
+			top calc(33.33333% - 5px)
+		&3-1
+			left -5px
+			top calc(66.66666% - 5px)

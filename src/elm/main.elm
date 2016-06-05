@@ -1,4 +1,4 @@
-import Html exposing (Html, h1, div, text, input, button, label, span)
+import Html exposing (Html, h1, div, text, input, button, label, span, ol, li)
 import Html.Attributes exposing (class, value, id, for)
 import Html.App as Html
 import Html.Events exposing (onClick, onInput)
@@ -42,12 +42,9 @@ type alias Model = {
 
 --          (0,0) (0,1)
 --
---
 --   (3,0)                (1,0)
 --
---
 --   (3,1)                (1,1)
---
 --
 --          (2,0) (2,1)
 type alias PathPoint = (Int, Int)
@@ -68,7 +65,7 @@ type alias PlayerCoordinate = {
   tileCoordinate: PathPoint
 }
 
-board = { tiles = List.map makeTile [0..1] }
+board = { tiles = List.map makeTile [0..0] }
 
 makeTile _ =
   {
@@ -225,4 +222,16 @@ boardView board =
 
 tileView: Int -> Tile -> Html Msg
 tileView index tile =
-  div [ class "tile" ] [ text (toString index) ]
+  div [ class "tile" ] [
+    span [ class "tile-index" ] [ text (toString index) ],
+    ol [ class "points" ]
+      (List.map tilePointView tile.points)
+  ]
+
+tilePointView: PathPoint -> Html Msg
+tilePointView pathPoint =
+  li [ class (pathPointToString pathPoint) ] [ text (pathPointToString pathPoint) ]
+
+pathPointToString: PathPoint -> String
+pathPointToString (side, index) =
+  "point-" ++ (toString side) ++ "-" ++ (toString index)
