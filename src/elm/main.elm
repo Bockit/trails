@@ -43,57 +43,48 @@ type alias Model = {
 --          (0,0) (0,1)
 --
 --
---   (3,0)               (1,0)
+--   (3,0)                (1,0)
 --
 --
---   (3,1)               (1,1)
+--   (3,1)                (1,1)
 --
 --
 --          (2,0) (2,1)
-type PathPoint = Int Int
+type alias PathPoint = (Int, Int)
 
-type alias Path = {
-  from: PathPoint,
-  to: PathPoint
-}
+type alias Path = (PathPoint, PathPoint)
 
 type alias Tile = {
-  paths: List Path
+  points: List PathPoint,
+  connections: List Path
 }
-
-type alias Positions = List Position
-type alias Position = List PathPoint
 
 type alias Board = {
-  tilePositions: List (List Int),
-  playerPositions: List PlayerPosition
+  tiles: List Tile
 }
 
-type alias PlayerPosition = {
-  x: Int,
-  y: Int,
-  pathPoint: PathPoint
+type alias PlayerCoordinate = {
+  tile: Int,
+  tileCoordinate: PathPoint
 }
 
-board = {
-  tilePositions = List.map makeBoardRow [0..5],
-  playerPositions = makePlayerPositions}
+board = { tiles = List.map makeTile [0..1] }
 
-
-makeBoardRow _ = [ 0..5 ]
-
-makePlayerPositions =
-    (filterDuplicatePositions
-      (List.concat
-        (List.map makePlayerPositionsFromTile [0..35])))
-
-filterDuplicatePositions list = list
-
-comparePositions a b =
-  if List.contains [ A, B ] a.pathPoint then
-
-makePlayerPositionsFromTile index =
-  List.map (\coordinate -> { x = index % 6, y = index // 6, pathPoint = coordinate }) [ A, B, C, D, E, F, G, H ]
+makeTile _ =
+  {
+    points = [
+      (0, 0), (0, 1),
+      (1, 0), (1, 1),
+      (2, 0), (2, 1),
+      (3, 0), (3, 1)
+    ],
+    connections = [
+      ((0, 0), (1, 1)),
+      ((1, 0), (2, 1)),
+      ((2, 0), (3, 1)),
+      ((3, 0), (0, 1))
+    ]
+  }
 
 tokens = [
   { id = 0, name = "Black", color = Black },
@@ -192,7 +183,8 @@ chooseTokensPage model =
 playGamePage model =
   div []
   [
-    pageHeading "Play Game"
+    pageHeading "Play Game",
+    boardView model.board
   ]
 
 gameOverPage model =
@@ -225,3 +217,12 @@ tokenNameChanger token =
       input [ value token.name, onInput ChangeTokenName, id "namer" ] []
     Nothing ->
       div [] []
+
+boardView: Board -> Html Msg
+boardView board =
+  div [ class "board" ]
+    (List.map tileView board.tiles)
+
+tileView: Tile -> Html Msg
+tileView tile =
+  div [ class "tile" ] [ text "I'm a tile" ]
