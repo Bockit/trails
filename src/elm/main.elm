@@ -1,4 +1,4 @@
-import Html exposing (Html, h1, div, text, input, button, label, span, ol, li)
+import Html exposing (Html, h1, div, text, input, button, label, span, ol, ul, li)
 import Html.Attributes exposing (class, value, id, for)
 import Html.App as Html
 import Html.Events exposing (onClick, onInput)
@@ -28,7 +28,8 @@ type Color
 type alias Token = {
   name : String,
   color : Color,
-  id : Int
+  id : Int,
+  position: Maybe PlayerCoordinate
 }
 
 type alias TokenList = List Token
@@ -83,15 +84,19 @@ makeTile _ =
     ]
   }
 
+startingCoordinate = {
+  tile = 0,
+  tileCoordinate = (0, 0)}
+
 tokens = [
-  { id = 0, name = "Black", color = Black },
-  { id = 1, name = "Grey", color = Grey },
-  { id = 2, name = "Brown", color = Brown },
-  { id = 3, name = "Blue", color = Blue },
-  { id = 4, name = "Red", color = Red },
-  { id = 5, name = "Purple", color = Purple },
-  { id = 6, name = "Green", color = Green },
-  { id = 7, name = "Orange", color = Orange }]
+  { id = 0, name = "Black", color = Black, position = Just startingCoordinate },
+  { id = 1, name = "Grey", color = Grey, position = Nothing },
+  { id = 2, name = "Brown", color = Brown, position = Nothing },
+  { id = 3, name = "Blue", color = Blue, position = Nothing },
+  { id = 4, name = "Red", color = Red, position = Nothing },
+  { id = 5, name = "Purple", color = Purple, position = Nothing },
+  { id = 6, name = "Green", color = Green, position = Nothing },
+  { id = 7, name = "Orange", color = Orange, position = Nothing }]
 
 initialModel: Model
 initialModel = {
@@ -181,7 +186,7 @@ playGamePage model =
   div []
   [
     pageHeading "Play Game",
-    boardView model.board
+    boardView model.board model.tokens
   ]
 
 gameOverPage model =
@@ -215,17 +220,27 @@ tokenNameChanger token =
     Nothing ->
       div [] []
 
-boardView: Board -> Html Msg
-boardView board =
+boardView: Board -> TokenList -> Html Msg
+boardView board tokens =
   div [ class "board" ]
-    (List.indexedMap tileView board.tiles)
+    (List.indexedMap (tileViewHelper tokens) board.tiles)
 
-tileView: Int -> Tile -> Html Msg
-tileView index tile =
+tileViewHelper tokens index tile =
+  tileView (filterTokensForTile tokens index) index tile
+
+filterTokensForTile tokens tileIndex =
+  List.filter (\token ->
+    case token.position of
+      Just position -> position.tile == tileIndex
+      Nothing -> False
+    ) tokens
+
+tileView: TokenList -> Int -> Tile -> Html Msg
+tileView tokens index tile =
   div [ class "tile" ] [
     span [ class "tile-index" ] [ text (toString index) ],
-    ol [ class "points" ]
-      (List.map tilePointView tile.points)
+    ol [ class "points" ] (List.map tilePointView tile.points),
+    tileTokens tokens
   ]
 
 tilePointView: PathPoint -> Html Msg
@@ -235,3 +250,16 @@ tilePointView pathPoint =
 pathPointToString: PathPoint -> String
 pathPointToString (side, index) =
   "point-" ++ (toString side) ++ "-" ++ (toString index)
+
+tileTokens: TokenList -> Html Msg
+tileTokens tokens =
+  ul [ class "tokens" ]
+    (List.map tileToken tokens)
+
+tileToken: Token -> Html Msg
+tileToken token =
+  case token.position of
+    Just position ->
+      li [ class ((colorToCssClass token.color) ++ " token " ++ (pathPointToString position.tileCoordinate)) ] []
+    Nothing ->
+      li [] []
