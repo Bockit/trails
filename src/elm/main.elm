@@ -102,7 +102,7 @@ initialModel: Model
 initialModel = {
   tokens = tokens,
   selectedTokenId = Nothing,
-  gameState = ChooseTokens,
+  gameState = PlayGame,
   board = board}
 
 colorToCssClass: Color -> String
@@ -260,6 +260,6 @@ tileToken: Token -> Html Msg
 tileToken token =
   case token.position of
     Just position ->
-      li [ class ((colorToCssClass token.color) ++ " token " ++ (pathPointToString position.tileCoordinate)) ] []
+      li [ class ((colorToCssClass token.color) ++ " tile-token " ++ (pathPointToString position.tileCoordinate)) ] []
     Nothing ->
       li [] []
