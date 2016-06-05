@@ -9,10 +9,9 @@ main =
 
 type Msg
   = NoOp
-  | SelectToken TokenId
+  | SelectToken Int
   | ChangeTokenName String
   | StartGame
-  | ClickCoordinate Coordinate
 
 type GameState = ChooseTokens | PlayGame | GameOver
 
@@ -29,19 +28,16 @@ type Color
 type alias Token = {
   name : String,
   color : Color,
-  id : TokenId
+  id : Int
 }
-
-type alias TokenId = Int
 
 type alias TokenList = List Token
 
 type alias Model = {
   tokens: TokenList,
-  selectedTokenId: Maybe TokenId,
+  selectedTokenId: Maybe Int,
   gameState: GameState,
-  tile: Tile,
-  selectedCoordinate: Coordinate
+  board: Board
 }
 
 --      A   B
@@ -49,15 +45,50 @@ type alias Model = {
 --
 --   G         D
 --      F   E
-type Coordinate = A | B | C | D | E | F | G | H
+type PathPoint = A | B | C | D | E | F | G | H
 
 type alias Path = {
-  from: Coordinate,
-  to: Coordinate
+  from: PathPoint,
+  to: PathPoint
 }
 
 type alias Tile = {
-  paths: List Path}
+  paths: List Path
+}
+
+type alias Positions = List Position
+type alias Position = List PathPoint
+
+type alias Board = {
+  tilePositions: List (List Int),
+  playerPositions: List PlayerPosition
+}
+
+type alias PlayerPosition = {
+  x: Int,
+  y: Int,
+  pathPoint: PathPoint
+}
+
+board = {
+  tilePositions = List.map makeBoardRow [0..5],
+  playerPositions = makePlayerPositions}
+
+
+makeBoardRow _ = [ 0..5 ]
+
+makePlayerPositions =
+    (filterDuplicatePositions
+      (List.concat
+        (List.map makePlayerPositionsFromTile [0..35])))
+
+filterDuplicatePositions list = list
+
+comparePositions a b =
+  if List.contains [ A, B ] a.pathPoint
+
+makePlayerPositionsFromTile index =
+  List.map (\coordinate -> { x = index % 6, y = index // 6, pathPoint = coordinate }) [ A, B, C, D, E, F, G, H ]
 
 tokens = [
   { id = 0, name = "Black", color = Black },
@@ -69,25 +100,12 @@ tokens = [
   { id = 6, name = "Green", color = Green },
   { id = 7, name = "Orange", color = Orange }]
 
-initialTile = {
-  paths = [
-    { from = A, to = C },
-    { from = B, to = D },
-    { from = C, to = A },
-    { from = D, to = B },
-    { from = E, to = G },
-    { from = F, to = H },
-    { from = G, to = E },
-    { from = H, to = F }
-  ]}
-
 initialModel: Model
 initialModel = {
   tokens = tokens,
   selectedTokenId = Nothing,
   gameState = ChooseTokens,
-  tile = initialTile,
-  selectedCoordinate = A}
+  board = board}
 
 colorToCssClass: Color -> String
 colorToCssClass color =
@@ -105,7 +123,7 @@ update: Msg -> Model -> Model
 update msg model =
   case msg of
     SelectToken tokenId ->
-      { model | selectedTokenId = Just tokenId }
+      log "wah" { model | selectedTokenId = Just tokenId }
     ChangeTokenName newName ->
       case model.selectedTokenId of
         Just selectedTokenId ->
@@ -114,23 +132,21 @@ update msg model =
           model
     StartGame ->
       { model | gameState = PlayGame }
-    ClickCoordinate coordinate ->
-      log "model" { model | selectedCoordinate = coordinate }
     _ ->
       model
 
-updateTokenName: Model -> TokenId -> String -> Model
+updateTokenName: Model -> Int -> String -> Model
 updateTokenName model id name =
   { model | tokens = List.map (updateTokenNameMapper id name) model.tokens }
 
-updateTokenNameMapper: TokenId -> String -> Token -> Token
+updateTokenNameMapper: Int -> String -> Token -> Token
 updateTokenNameMapper id newName token =
   if token.id == id then
     { token | name = newName }
   else
     token
 
-isActiveToken: Token -> Maybe TokenId -> String
+isActiveToken: Token -> Maybe Int -> String
 isActiveToken token activeTokenId =
   case activeTokenId of
     Just id ->
@@ -171,8 +187,7 @@ chooseTokensPage model =
 playGamePage model =
   div []
   [
-    pageHeading "Play Game",
-    tile model.tile
+    pageHeading "Play Game"
   ]
 
 gameOverPage model =
@@ -189,7 +204,7 @@ tokenList model =
   div [ class "token-list" ]
     (List.map ( token model.selectedTokenId ) model.tokens)
 
-token: Maybe TokenId -> Token -> Html Msg
+token: Maybe Int -> Token -> Html Msg
 token selectedTokenId token =
   label
     [
@@ -205,22 +220,3 @@ tokenNameChanger token =
       input [ value token.name, onInput ChangeTokenName, id "namer" ] []
     Nothing ->
       div [] []
-
---findExit: Tile -> Coordinate -> Coordinate
---findExit tile entryPoint =
---  (Array.fromList(tile)).to
-
-tile data =
-  div [ class "tile" ] [
-    span [] [ text "I'm a tile" ],
-    ul [] [
-      li [ class "coordinate-a", onClick ( ClickCoordinate A ) ] [ text "A" ],
-      li [ class "coordinate-b", onClick ( ClickCoordinate B ) ] [ text "B" ],
-      li [ class "coordinate-c", onClick ( ClickCoordinate C ) ] [ text "C" ],
-      li [ class "coordinate-d", onClick ( ClickCoordinate D ) ] [ text "D" ],
-      li [ class "coordinate-e", onClick ( ClickCoordinate E ) ] [ text "E" ],
-      li [ class "coordinate-f", onClick ( ClickCoordinate F ) ] [ text "F" ],
-      li [ class "coordinate-g", onClick ( ClickCoordinate G ) ] [ text "G" ],
-      li [ class "coordinate-h", onClick ( ClickCoordinate H ) ] [ text "H" ]
-    ]
-  ]
