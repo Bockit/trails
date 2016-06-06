@@ -75,7 +75,7 @@ type alias PlayerCoordinate = {
 board = { tiles = List.map makeTile [0..35] }
 
 makeTile _ =
-  {
+  log "making tile" ({
     points = [
       (0, 0), (0, 1),
       (1, 0), (1, 1),
@@ -83,7 +83,7 @@ makeTile _ =
       (3, 0), (3, 1)
     ],
     connections = Nothing
-  }
+  })
 
 makeTileConnections =
   Just [
@@ -153,11 +153,11 @@ placeTile model connections tileIndex =
     board = placeTileOnBoard connections board tileIndex }
 
 placeTileOnBoard connections board tileIndex =
-  { board | tiles = List.indexedMap (addConnectionsToTile tileIndex connections) board.tiles }
+  { board | tiles = log "tiles" (List.indexedMap (addConnectionsToTile tileIndex connections) board.tiles) }
 
-addConnectionsToTile setIndex connections tileIndex tile =
+addConnectionsToTile setIndex newConnections tileIndex tile =
   if setIndex == tileIndex then
-    { tile | connections = connections }
+    { tile | connections = newConnections }
   else
     tile
 
