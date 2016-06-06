@@ -108,7 +108,7 @@ initialModel = {
   tokens = tokens,
 
   selectedTokenId = Nothing,
-  gameState = ChoosePositions,
+  gameState = ChooseTokens,
   board = board}
 
 colorToCssClass: Color -> String
@@ -135,7 +135,7 @@ update msg model =
         Nothing ->
           model
     StartGame ->
-      { model | gameState = PlayGame }
+      { model | gameState = ChoosePositions }
     SelectStartingPoint position ->
       { model |
         tokens = setFirstUnsetTokenPosition model.tokens position,
